@@ -1,0 +1,1110 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>PocketWise | Student Expense Tracker</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+
+<body>
+
+    <!-- =====================================================
+         NAVBAR
+         ===================================================== -->
+
+    <nav class="navbar">
+
+        <div class="logo">
+
+            <div class="logo-icon">
+                ₹
+            </div>
+
+            <div>
+                <h2>PocketWise</h2>
+                <span>Smart Student Finance</span>
+            </div>
+
+        </div>
+
+
+        <div class="nav-links">
+
+            <a href="#dashboard">
+                Dashboard
+            </a>
+
+            <a href="#expenses">
+                Expenses
+            </a>
+
+            <a href="#insights">
+                AI Insights
+            </a>
+
+            <a href="#agents">
+                Agents
+            </a>
+
+        </div>
+
+    </nav>
+
+
+
+    <!-- =====================================================
+         MAIN CONTENT
+         ===================================================== -->
+
+    <main id="dashboard">
+
+
+        <!-- =================================================
+             HERO SECTION
+             ================================================= -->
+
+        <section class="hero">
+
+            <div class="hero-text">
+
+                <p class="small-heading">
+                    WELCOME TO POCKETWISE
+                </p>
+
+                <h1>
+                    Take control of your
+                    <span>student expenses.</span>
+                </h1>
+
+                <p class="hero-description">
+
+                    Track your spending, understand your habits,
+                    discover potential savings, and get smart
+                    investment guidance powered by AI agents.
+
+                </p>
+
+            </div>
+
+
+            <div class="hero-icon">
+                💰
+            </div>
+
+        </section>
+
+
+
+        <!-- =================================================
+             SUMMARY CARDS
+             ================================================= -->
+
+        <section class="summary-grid">
+
+
+            <!-- MONTHLY INCOME -->
+
+            <div class="summary-card">
+
+                <div class="card-icon">
+                    💵
+                </div>
+
+                <div>
+
+                    <p>
+                        Monthly Income
+                    </p>
+
+                    <h2 id="monthly-income-display">
+                        ₹0
+                    </h2>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- TOTAL SPENDING -->
+
+            <div class="summary-card">
+
+                <div class="card-icon">
+                    ₹
+                </div>
+
+                <div>
+
+                    <p>
+                        Total Spending
+                    </p>
+
+                    <h2 id="total-spending">
+
+                        ₹
+                        {{ "%.2f"|format(
+                            expenses|sum(attribute="amount")
+                        ) }}
+
+                    </h2>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- FOOD -->
+
+            <div class="summary-card">
+
+                <div class="card-icon">
+                    🍔
+                </div>
+
+                <div>
+
+                    <p>
+                        Food
+                    </p>
+
+                    <h2 id="food-spending">
+
+                        ₹
+                        {{ "%.2f"|format(
+                            expenses
+                            |selectattr("category", "equalto", "Food")
+                            |sum(attribute="amount")
+                        ) }}
+
+                    </h2>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- AVAILABLE SAVINGS -->
+
+            <div class="summary-card">
+
+                <div class="card-icon">
+                    💰
+                </div>
+
+                <div>
+
+                    <p>
+                        Available Savings
+                    </p>
+
+                    <h2 id="potential-savings">
+                        ₹0
+                    </h2>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- =================================================
+             EXPENSE SECTION
+             ================================================= -->
+
+        <section class="content-grid" id="expenses">
+
+
+            <!-- =================================================
+                 ADD EXPENSE FORM
+                 ================================================= -->
+
+            <div class="panel expense-form-panel">
+
+
+                <div class="panel-heading">
+
+                    <div>
+
+                        <p class="section-label">
+                            TRACK YOUR MONEY
+                        </p>
+
+                        <h2>
+                            Add New Expense
+                        </h2>
+
+                    </div>
+
+
+                    <div class="panel-icon">
+                        +
+                    </div>
+
+                </div>
+
+
+
+                <form
+                    id="expense-form"
+                    method="POST"
+                    action="/add-expense"
+                >
+
+
+                    <!-- =========================================
+                         MONTHLY INCOME
+                         ========================================= -->
+
+                    <div class="form-group">
+
+                        <label for="monthly-income">
+                            Monthly Income
+                        </label>
+
+
+                        <div class="amount-input">
+
+                            <span>
+                                ₹
+                            </span>
+
+
+                            <input
+                                type="number"
+                                id="monthly-income"
+                                placeholder="Example: 5000"
+                                min="0"
+                                step="0.01"
+                            >
+
+                        </div>
+
+
+                        <small class="form-help">
+                            Enter your monthly income before analyzing your expenses.
+                        </small>
+
+                    </div>
+
+
+
+                    <!-- =========================================
+                         DESCRIPTION
+                         ========================================= -->
+
+                    <div class="form-group">
+
+                        <label for="description">
+                            What did you spend on?
+                        </label>
+
+
+                        <input
+                            type="text"
+                            id="description"
+                            name="description"
+                            placeholder="Example: Lunch at restaurant"
+                            autocomplete="off"
+                            required
+                        >
+
+                    </div>
+
+
+
+                    <!-- =========================================
+                         AMOUNT
+                         ========================================= -->
+
+                    <div class="form-group">
+
+                        <label for="amount">
+                            Amount
+                        </label>
+
+
+                        <div class="amount-input">
+
+                            <span>
+                                ₹
+                            </span>
+
+
+                            <input
+                                type="number"
+                                id="amount"
+                                name="amount"
+                                placeholder="250"
+                                min="1"
+                                step="0.01"
+                                required
+                            >
+
+                        </div>
+
+                    </div>
+
+
+
+                    <!-- =========================================
+                         SUBMIT BUTTON
+                         ========================================= -->
+
+                    <button
+                        type="submit"
+                        class="primary-button"
+                    >
+
+                        <span>
+                            +
+                        </span>
+
+                        Add Expense
+
+                    </button>
+
+
+                </form>
+
+            </div>
+
+
+
+            <!-- =================================================
+                 SPENDING OVERVIEW
+                 ================================================= -->
+
+            <div class="panel overview-panel">
+
+
+                <div class="panel-heading">
+
+                    <div>
+
+                        <p class="section-label">
+                            YOUR MONEY
+                        </p>
+
+                        <h2>
+                            Spending Overview
+                        </h2>
+
+                    </div>
+
+
+                    <div class="panel-icon">
+                        📊
+                    </div>
+
+                </div>
+
+
+
+                <div class="category-bars">
+
+
+                    <!-- FOOD -->
+
+                    <div class="category-row">
+
+                        <div class="category-info">
+
+                            <span>
+                                🍔 Food
+                            </span>
+
+                            <strong id="food-percent">
+                                0%
+                            </strong>
+
+                        </div>
+
+
+                        <div class="progress-bar">
+
+                            <div
+                                class="progress food-progress"
+                                id="food-bar"
+                                style="width: 0%;"
+                            ></div>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <!-- TRANSPORT -->
+
+                    <div class="category-row">
+
+                        <div class="category-info">
+
+                            <span>
+                                🚌 Transport
+                            </span>
+
+                            <strong id="transport-percent">
+                                0%
+                            </strong>
+
+                        </div>
+
+
+                        <div class="progress-bar">
+
+                            <div
+                                class="progress transport-progress"
+                                id="transport-bar"
+                                style="width: 0%;"
+                            ></div>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <!-- SHOPPING -->
+
+                    <div class="category-row">
+
+                        <div class="category-info">
+
+                            <span>
+                                🛍️ Shopping
+                            </span>
+
+                            <strong id="shopping-percent">
+                                0%
+                            </strong>
+
+                        </div>
+
+
+                        <div class="progress-bar">
+
+                            <div
+                                class="progress shopping-progress"
+                                id="shopping-bar"
+                                style="width: 0%;"
+                            ></div>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <!-- ENTERTAINMENT -->
+
+                    <div class="category-row">
+
+                        <div class="category-info">
+
+                            <span>
+                                🎬 Entertainment
+                            </span>
+
+                            <strong id="entertainment-percent">
+                                0%
+                            </strong>
+
+                        </div>
+
+
+                        <div class="progress-bar">
+
+                            <div
+                                class="progress entertainment-progress"
+                                id="entertainment-bar"
+                                style="width: 0%;"
+                            ></div>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <!-- EDUCATION -->
+
+                    <div class="category-row">
+
+                        <div class="category-info">
+
+                            <span>
+                                📚 Education
+                            </span>
+
+                            <strong id="education-percent">
+                                0%
+                            </strong>
+
+                        </div>
+
+
+                        <div class="progress-bar">
+
+                            <div
+                                class="progress education-progress"
+                                id="education-bar"
+                                style="width: 0%;"
+                            ></div>
+
+                        </div>
+
+                    </div>
+
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- =================================================
+             RECENT EXPENSES
+             ================================================= -->
+
+        <section class="panel expenses-panel">
+
+
+            <div class="panel-heading">
+
+                <div>
+
+                    <p class="section-label">
+                        TRANSACTION HISTORY
+                    </p>
+
+                    <h2>
+                        Recent Expenses
+                    </h2>
+
+                </div>
+
+
+                <span
+                    class="expense-count"
+                    id="expense-count"
+                >
+
+                    {{ expenses|length }}
+
+                    {% if expenses|length == 1 %}
+                        expense
+                    {% else %}
+                        expenses
+                    {% endif %}
+
+                </span>
+
+            </div>
+
+
+
+            <div class="table-container">
+
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                Description
+                            </th>
+
+                            <th>
+                                Category
+                            </th>
+
+                            <th>
+                                Amount
+                            </th>
+
+                            <th>
+                                Date
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+
+                    <tbody id="expense-table">
+
+
+                        {% if expenses %}
+
+
+                            {% for expense in expenses %}
+
+                            <tr>
+
+
+                                <td>
+                                    {{ expense["description"] }}
+                                </td>
+
+
+
+                                <td>
+
+                                    <span class="category-badge">
+
+                                        {{ expense["category"] }}
+
+                                    </span>
+
+                                </td>
+
+
+
+                                <td>
+
+                                    ₹{{ "%.2f"|format(
+                                        expense["amount"]
+                                    ) }}
+
+                                </td>
+
+
+
+                                <td>
+
+                                    {{ expense["date"] }}
+
+                                </td>
+
+
+                            </tr>
+
+                            {% endfor %}
+
+
+                        {% else %}
+
+
+                            <tr class="empty-row">
+
+                                <td colspan="4">
+
+                                    No expenses added yet.
+                                    Start by adding your first expense!
+
+                                </td>
+
+                            </tr>
+
+
+                        {% endif %}
+
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- =================================================
+             AI INSIGHTS
+             ================================================= -->
+
+        <section
+            class="ai-section"
+            id="insights"
+        >
+
+
+            <div class="ai-header">
+
+
+                <div>
+
+                    <p class="section-label">
+                        POWERED BY AI AGENTS
+                    </p>
+
+
+                    <h2>
+                        Your Financial Insights
+                    </h2>
+
+
+                    <p>
+
+                        Let PocketWise analyze your income,
+                        spending, savings, and investment
+                        opportunities.
+
+                    </p>
+
+                </div>
+
+
+                <div class="ai-symbol">
+                    🤖
+                </div>
+
+            </div>
+
+
+
+            <div class="insights-grid">
+
+
+                <!-- ANALYSIS -->
+
+                <div class="insight-card">
+
+                    <span class="insight-icon">
+                        📊
+                    </span>
+
+
+                    <h3>
+                        Spending Analysis
+                    </h3>
+
+
+                    <p id="analysis-result">
+
+                        Add some expenses and your monthly income
+                        to receive personalized spending insights.
+
+                    </p>
+
+                </div>
+
+
+
+                <!-- SAVINGS -->
+
+                <div class="insight-card">
+
+                    <span class="insight-icon">
+                        💰
+                    </span>
+
+
+                    <h3>
+                        Available Savings
+                    </h3>
+
+
+                    <p id="saving-result">
+
+                        Your available savings will appear here
+                        after subtracting expenses from your income.
+
+                    </p>
+
+                </div>
+
+
+
+                <!-- INVESTMENT -->
+
+                <div class="insight-card">
+
+                    <span class="insight-icon">
+                        📈
+                    </span>
+
+
+                    <h3>
+                        SIP Guidance
+                    </h3>
+
+
+                    <p id="investment-result">
+
+                        SIP guidance will appear here based on
+                        your available savings.
+
+                    </p>
+
+                </div>
+
+
+            </div>
+
+
+
+            <button
+                class="analyze-button"
+                id="analyze-button"
+                type="button"
+            >
+
+                🤖 Analyze My Expenses
+
+            </button>
+
+
+        </section>
+
+
+
+        <!-- =================================================
+             MULTI-AGENT SYSTEM
+             ================================================= -->
+
+        <section
+            class="agents-section"
+            id="agents"
+        >
+
+
+            <div class="section-title-center">
+
+
+                <p class="section-label">
+                    MULTI-AGENT SYSTEM
+                </p>
+
+
+                <h2>
+                    How PocketWise Thinks
+                </h2>
+
+
+                <p>
+
+                    Four specialized AI agents work together
+                    to understand your finances.
+
+                </p>
+
+
+            </div>
+
+
+
+            <div class="agent-flow">
+
+
+                <!-- EXPENSE AGENT -->
+
+                <div class="agent-card">
+
+                    <div class="agent-number">
+                        01
+                    </div>
+
+
+                    <div class="agent-icon">
+                        🧾
+                    </div>
+
+
+                    <h3>
+                        Expense Agent
+                    </h3>
+
+
+                    <p>
+
+                        Uses AI to understand your expense
+                        description and categorize it.
+
+                    </p>
+
+
+                    <span class="agent-status">
+                        Ready
+                    </span>
+
+                </div>
+
+
+
+                <div class="flow-arrow">
+                    →
+                </div>
+
+
+
+                <!-- ANALYSIS AGENT -->
+
+                <div class="agent-card">
+
+                    <div class="agent-number">
+                        02
+                    </div>
+
+
+                    <div class="agent-icon">
+                        📊
+                    </div>
+
+
+                    <h3>
+                        Analysis Agent
+                    </h3>
+
+
+                    <p>
+
+                        Studies your categorized expenses
+                        and identifies your spending patterns.
+
+                    </p>
+
+
+                    <span class="agent-status">
+                        Ready
+                    </span>
+
+                </div>
+
+
+
+                <div class="flow-arrow">
+                    →
+                </div>
+
+
+
+                <!-- SAVINGS AGENT -->
+
+                <div class="agent-card">
+
+                    <div class="agent-number">
+                        03
+                    </div>
+
+
+                    <div class="agent-icon">
+                        💰
+                    </div>
+
+
+                    <h3>
+                        Savings Agent
+                    </h3>
+
+
+                    <p>
+
+                        Compares your monthly income with
+                        total expenses to calculate available savings.
+
+                    </p>
+
+
+                    <span class="agent-status">
+                        Ready
+                    </span>
+
+                </div>
+
+
+
+                <div class="flow-arrow">
+                    →
+                </div>
+
+
+
+                <!-- INVESTMENT AGENT -->
+
+                <div class="agent-card">
+
+                    <div class="agent-number">
+                        04
+                    </div>
+
+
+                    <div class="agent-icon">
+                        📈
+                    </div>
+
+
+                    <h3>
+                        Investment Agent
+                    </h3>
+
+
+                    <p>
+
+                        Provides educational SIP guidance
+                        based on your available savings.
+
+                    </p>
+
+
+                    <span class="agent-status">
+                        Ready
+                    </span>
+
+                </div>
+
+
+            </div>
+
+        </section>
+
+
+    </main>
+
+
+
+    <!-- =====================================================
+         FOOTER
+         ===================================================== -->
+
+    <footer>
+
+
+        <div>
+
+            <strong>
+                💰 PocketWise
+            </strong>
+
+            <span>
+                | AI Student Expense Tracker
+            </span>
+
+        </div>
+
+
+        <p>
+            Built with Flask & Multi-Agent AI
+        </p>
+
+
+    </footer>
+
+
+
+    <!-- =====================================================
+         JAVASCRIPT
+         ===================================================== -->
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+
+</body>
+
+</html>

@@ -1,0 +1,28 @@
+# Python virtual environment
+venv/
+.venv/
+
+# Environment variables / API keys
+.env
+.env.*
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# macOS
+.DS_Store
+
+# VS Code
+.vscode/
+
+# Python test/cache files
+.pytest_cache/
+.coverage
+
+# Logs
+*.log
+
+# Local database
+pocketwise.db
